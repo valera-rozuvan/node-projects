@@ -1,75 +1,99 @@
 // By Nodejs , read large file line by line. mainly created for logfile processing.
 // https://gist.github.com/deemstone/8279565
 //
-// Last updated on: 2014-01-05T23:52:12-08:00
+// Original file version from: 2014-01-05T23:52:12-08:00
 
-/*
- * 逐行读取文件
- * 分段读取文件
- */
 var fs = require('fs');
-//每段读取的长度
-//@param inputFile{filepath}
-//@param onEnd{func} 所有内容读完了
-module.exports = function(inputFile, onEnd){
-    var sLength = 1024;
-    var buffer = new Buffer(sLength);
-    var _lineFragment = '';
-    var fd = fs.openSync(inputFile, 'r');
 
-    var position = 0;
-    var i = 0;  //条数，从0开始计
+// Function:
+//     exports(inputFile, onEnd)
+//
+// Parameters:
+//     @param inputFile - file path string
+//     @param onEnd     - Callback function.
+module.exports = function (inputFile, onEnd) {
+    var sLength = 1024,
+        _lineFragment = '',
+        position = 0,
+        i = 0,
+        block_queue = [],
+        block_fetching = false,
+        buffer, fd;
 
-    var block_queue = [];
-    var block_fetching = false;
+    buffer = new Buffer(sLength);
+    fd = fs.openSync(inputFile, 'r');
 
-    var fetchBlock = function (callback){
-        if(!callback){
-            console.warn('no callback when call fetchBlock()')
-        };
+    return fetchBlock;
 
-        if(!block_fetching){
+    function fetchBlock(callback) {
+        if (!callback) {
+            console.warn('no callback when call fetchBlock()');
+        }
+
+        if (!block_fetching) {
             block_fetching = true;
-        }else{
+        } else {
             block_queue.push(callback);
+
             return;
         }
 
         console.log('read postion: ', position);
 
-        fs.read(fd, buffer, 0, sLength, position, function(err, bytesRead, buf){
-            if(err) throw err;
+        // Taken from http://nodejs.org/api/fs.html#fs_fs_read_fd_buffer_offset_length_position_callback .
+        //
+        // Function:
+        //     fs.read(fd, buffer, offset, length, position, callback)
+        //
+        // Description:
+        //     Read data from the file specified by fd.
+        //
+        // Parameters:
+        //     @buffer   - The buffer that the data will be written to.
+        //     @offset   - The offset in the buffer to start writing at.
+        //     @length   - An integer specifying the number of bytes to read.
+        //     @position - An integer specifying where to begin reading from in
+        //                 the file. If position is null, data will be read from
+        //                 the current file position.
+        //     @callback - The callback is given the three arguments, (err, bytesRead, buffer).
+        fs.read(fd, buffer, 0, sLength, position, function (err, bytesRead, buf) {
+            var lines;
 
-            if(bytesRead === 0){
-                onEnd(0, i);  //总数
+            if (err) {
+                throw err;
+            }
+
+            if (bytesRead === 0) {
+                onEnd(0, i);
+
                 return;
             }
-            //fs.read position会自己漂移？？
-            position += bytesRead;
-            //因为fs.read异步，顺序多次调用fetchBlock会导致读取同一position的块
 
-            //regex from https://github.com/RustyMarvin/line-by-line/blob/master/line-by-line.js
-            var lines = buf.toString('utf8', 0, bytesRead).split(/(?:\n|\r\n|\r)/g);
+            position += bytesRead;
+
+            //Regex from https://github.com/RustyMarvin/line-by-line/blob/master/line-by-line.js .
+            lines = buf.toString('utf8', 0, bytesRead).split(/(?:\n|\r\n|\r)/g);
 
             lines[0] = _lineFragment + lines[0];
             _lineFragment = lines.pop() || '';
 
             block_fetching = false;
-            if(callback){
-                try{
+
+            if (callback) {
+                try {
                     callback(lines, i);
-                }catch(e){
+                } catch (e) {
                     throw e;
                 }
+
                 i += lines.length;
 
-                if(block_queue.length){
-                    fetchBlock( block_queue.shift() );
+                if (block_queue.length) {
+                    fetchBlock(block_queue.shift());
                 }
+
                 return;
             }
         });
     };
-
-    return fetchBlock;
 };
