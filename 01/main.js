@@ -1,8 +1,7 @@
-// console.log("Hello, world!");
+(function wrapperMain(require) {
+    'use strict';
 
-var http = require('http'),
-    init = require('./init'),
-
-    server = init.start(http);
-
-server.listen(8080);
+    require('./init')
+        .start(require('http'))
+        .listen(8080);
+}).call(this, require);
