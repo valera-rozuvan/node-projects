@@ -1,42 +1,35 @@
 <!doctype html>
-
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8">
+    <title>Node projects: project 02</title>
+    <meta name="description" content="Node projects: project 02.">
+    <meta name="author" content="Valera Rozuvan">
+    <!-- <link rel="stylesheet" href="styles.css?v=1.0"> -->
+    <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var
+        serverProto = 'http',
+        serverIp = '192.168.200.134',
+        serverPort = '8080',
+        socket = io.connect(
+          serverProto + '://' + serverIp + ':' + serverPort
+        );
 
-        <title>Node projects: project 02</title>
-        <meta name="description" content="Node projects: project 02.">
-        <meta name="author" content="Valera Rozuvan">
-
-        <!-- <link rel="stylesheet" href="styles.css?v=1.0"> -->
-
-        <!--[if lt IE 9]>
-        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
-    </head>
-
-    <body>
-        <script src="/socket.io/socket.io.js"></script>
-
-        <script>
-            var
-                serverProto = 'http',
-                serverIp = '192.168.200.134',
-                serverPort = '8080',
-                socket = io.connect(
-                    serverProto + '://' + serverIp + ':' + serverPort
-                );
-
-            socket.on('news', function (data) {
-                console.log(data);
-
-                socket.emit(
-                    'my other event',
-                    {
-                        my: 'data'
-                    }
-                );
-            });
-        </script>
-    </body>
+      socket.on('news', function (data) {
+        console.log(data);
+        socket.emit(
+          'my other event',
+          {
+            my: 'data'
+          }
+        );
+      });
+    </script>
+  </body>
 </html>
