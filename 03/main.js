@@ -12,58 +12,58 @@
  *     - http://docs.nodejitsu.com/articles/file-system/how-to-read-files-in-nodejs
  */
 
-(function (undefined) {
-    'use strict';
+(function(undefined) {
+  'use strict';
 
-    var exec = require('child_process').exec,
-        child, c1 = 0,
-        mainArgs = process.argv.slice(2),
-        fs = require('fs'),
-        shellCommand,
-        text, fileName;
+  var exec = require('child_process').exec,
+    child, c1 = 0,
+    mainArgs = process.argv.slice(2),
+    fs = require('fs'),
+    shellCommand,
+    text, fileName;
 
-    if (mainArgs.length !== 1) {
-        console.log('ERROR: "' + process.argv[1] + '" requires one argument!');
+  if (mainArgs.length !== 1) {
+    console.log('ERROR: "' + process.argv[1] + '" requires one argument!');
 
-        return;
-    }
+    return;
+  }
 
-    console.log('There are ' + mainArgs.length + ' arguments:');
+  console.log('There are ' + mainArgs.length + ' arguments:');
 
-    if (mainArgs.length) {
-        mainArgs.forEach(function (argValue) {
-            c1 += 1;
+  if (mainArgs.length) {
+    mainArgs.forEach(function(argValue) {
+      c1 += 1;
 
-            console.log('[' +  c1 + '] ' + argValue);
-        });
-    }
-
-    console.log('We will try reading a file now...');
-
-    fileName = process.argv[2];
-    text = fs.readFileSync(fileName, 'utf8');
-
-    console.log('=================== start of "' + fileName + '" ===================');
-    text.split(/\r?\n/).forEach(function (line) {
-        console.log(line);
+      console.log('[' + c1 + '] ' + argValue);
     });
-    console.log('=================== end of "' + fileName + '" ===================');
+  }
 
-    console.log('How many lines are in the file?');
+  console.log('We will try reading a file now...');
 
-    shellCommand = 'cat ' + fileName + ' | wc -l';
+  fileName = process.argv[2];
+  text = fs.readFileSync(fileName, 'utf8');
 
-    console.log('Executing "' + shellCommand + '" ...');
+  console.log('=================== start of "' + fileName + '" ===================');
+  text.split(/\r?\n/).forEach(function(line) {
+    console.log(line);
+  });
+  console.log('=================== end of "' + fileName + '" ===================');
 
-    child = exec(
-        'cat ' + fileName + ' | wc -l',
-        function (error, stdout, stderr) {
-            console.log('stdout: ' + stdout);
-            console.log('stderr: ' + stderr);
+  console.log('How many lines are in the file?');
 
-            if (error !== null) {
-                console.log('exec error: ' + error);
-            }
-        }
-    );
+  shellCommand = 'cat ' + fileName + ' | wc -l';
+
+  console.log('Executing "' + shellCommand + '" ...');
+
+  child = exec(
+    'cat ' + fileName + ' | wc -l',
+    function(error, stdout, stderr) {
+      console.log('stdout: ' + stdout);
+      console.log('stderr: ' + stderr);
+
+      if (error !== null) {
+        console.log('exec error: ' + error);
+      }
+    }
+  );
 }).call(this);
