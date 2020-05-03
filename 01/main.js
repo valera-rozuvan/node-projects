@@ -1,7 +1,7 @@
 (function wrapperMain(require) {
-    'use strict';
+  'use strict';
 
-    require('./init')
-        .start(require('http'))
-        .listen(8080);
+  require('./init')
+    .start(require('http'))
+    .listen(8080);
 }).call(this, require);
